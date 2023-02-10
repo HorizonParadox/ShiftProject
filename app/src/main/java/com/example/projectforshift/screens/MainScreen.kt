@@ -3,15 +3,13 @@ package com.example.projectforshift.screens
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,6 +22,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projectforshift.MainViewModel
 import com.example.projectforshift.data.models.Card
+import com.example.projectforshift.db.model.HistoryModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 
@@ -31,6 +32,9 @@ import java.util.*
 fun MainScreen(navController: NavController, viewModel: MainViewModel) {
     val bin = remember { mutableStateOf("45717362") }
     val cardInfo = viewModel.allInfo.observeAsState().value
+    val historyInfo by viewModel.getAllRoutes().observeAsState()
+    Log.d("Test", historyInfo.toString())
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -40,7 +44,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
         ) {
             TextField(bin = bin)
             CardInfoItem(item = cardInfo)
-            BottomButton(bin = bin, viewModel = viewModel)
+            historyInfo?.let { BottomButton(bin = bin, viewModel = viewModel, historyInfo = it) }
         }
     }
 }
@@ -96,7 +100,7 @@ fun CardInfoItem(item: Card?) {
                                     fontSize = 16.sp,
                                     color = Color.Black.copy(alpha = 0.5f)
                                 )
-                                item.number?.length?.let {length ->
+                                item.number?.length?.let { length ->
                                     Text(text = "$length", fontSize = 18.sp)
                                 }
                             }
@@ -193,7 +197,7 @@ fun CardInfoItem(item: Card?) {
                         fontSize = 18.sp,
                         color = Color.Black.copy(alpha = 0.5f)
                     )
-                    item.bank?.name?.let { name ->  Text(text = name, fontSize = 20.sp) }
+                    item.bank?.name?.let { name -> Text(text = name, fontSize = 20.sp) }
                     item.bank?.url?.let { url ->
                         Text(
                             modifier = Modifier.clickable { goToWebsite(context, url) },
@@ -215,8 +219,7 @@ fun CardInfoItem(item: Card?) {
                 }
             }
         }
-    }
-    else {
+    } else {
         Box(
             modifier = Modifier
                 .fillMaxHeight(0.9f)
@@ -248,7 +251,12 @@ fun TextField(bin: MutableState<String>) {
 }
 
 @Composable
-fun BottomButton(bin: MutableState<String>, viewModel: MainViewModel) {
+fun BottomButton(
+    bin: MutableState<String>,
+    viewModel: MainViewModel,
+    historyInfo: List<HistoryModel>
+) {
+    val coroutineScope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -258,6 +266,11 @@ fun BottomButton(bin: MutableState<String>, viewModel: MainViewModel) {
         Button(
             onClick = {
                 viewModel.getAllInfo(bin.value)
+                if (historyInfo.find { it.cardNumber == bin.value } == null) {
+                    coroutineScope.launch {
+                        viewModel.addNewCardNumber(HistoryModel(cardNumber = bin.value))
+                    }
+                }
             },
             modifier = Modifier
                 .padding(5.dp)
@@ -280,8 +293,10 @@ fun goToWebsite(context: Context, link: String) {
 }
 
 fun findCityOnMap(context: Context, latitude: Int, longitude: Int) {
-    val uri = java.lang.String.format(Locale.ENGLISH, "geo:%f,%f", latitude.toFloat(),
-        longitude.toFloat())
+    val uri = java.lang.String.format(
+        Locale.ENGLISH, "geo:%f,%f", latitude.toFloat(),
+        longitude.toFloat()
+    )
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
     context.startActivity(intent)
 }

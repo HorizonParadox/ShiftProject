@@ -1,5 +1,6 @@
 package com.example.projectforshift.screens
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import com.example.projectforshift.MainViewModel
 import com.example.projectforshift.navigation.Screens
@@ -31,6 +33,7 @@ fun SplashScreen(navController: NavController, viewModel: MainViewModel){
     )
     LaunchedEffect(key1 = true){
         startAnimate = true
+        viewModel.initDataBase()
         delay(4000)
         navController.navigate(Screens.Main.route)
     }
