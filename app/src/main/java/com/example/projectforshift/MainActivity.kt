@@ -3,6 +3,7 @@ package com.example.projectforshift
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.projectforshift.navigation.SetupNavHost
 import com.example.projectforshift.ui.theme.ProjectForShiftTheme
@@ -15,8 +16,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             ProjectForShiftTheme {
                 val navController = rememberNavController()
-                SetupNavHost(navController = navController)
-
+                val viewModel = hiltViewModel<MainViewModel>()
+                SetupNavHost(navController = navController, viewModel=viewModel)
             }
         }
     }

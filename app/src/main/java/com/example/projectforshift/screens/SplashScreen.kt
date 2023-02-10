@@ -16,11 +16,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.projectforshift.MainViewModel
 import com.example.projectforshift.navigation.Screens
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navController: NavController){
+fun SplashScreen(navController: NavController, viewModel: MainViewModel){
     var startAnimate by remember {
         mutableStateOf(false)
     }
@@ -30,7 +31,7 @@ fun SplashScreen(navController: NavController){
     )
     LaunchedEffect(key1 = true){
         startAnimate = true
-        //viewModel.getAllGames()
+        viewModel.getAllInfo()
         delay(4000)
         navController.navigate(Screens.Main.route)
     }
