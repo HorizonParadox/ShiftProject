@@ -31,7 +31,6 @@ fun SplashScreen(navController: NavController, viewModel: MainViewModel){
     )
     LaunchedEffect(key1 = true){
         startAnimate = true
-        viewModel.getAllInfo()
         delay(4000)
         navController.navigate(Screens.Main.route)
     }

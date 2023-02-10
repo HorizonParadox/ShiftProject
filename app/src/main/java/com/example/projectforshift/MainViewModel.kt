@@ -18,9 +18,9 @@ class MainViewModel @Inject constructor(private val repository: ApiRepository) :
     val allInfo: LiveData<Card>
         get() = _allInfo
 
-    fun getAllInfo() {
+    fun getAllInfo(bin: String) {
         viewModelScope.launch {
-            repository.getAllCardInfo().let {
+            repository.getAllCardInfo(bin).let {
                 if (it.isSuccessful) {
                     _allInfo.postValue(it.body())
                 } else {
