@@ -1,7 +1,7 @@
 package com.example.projectforshift
 
 import android.app.Application
-import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -29,7 +29,7 @@ class MainViewModel @Inject constructor(private val repository: ApiRepository, a
                 if (it.isSuccessful) {
                     _allInfo.postValue(it.body())
                 } else {
-                    Log.d("checkData", "Failed to load info: ${it.errorBody()}")
+                    Toast.makeText(context, "Failed to load info", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -41,7 +41,7 @@ class MainViewModel @Inject constructor(private val repository: ApiRepository, a
         val daoRoute = HistoryDataBase.getInstance(context).getDao()
         dbRepository = HistoryRealization(daoRoute)
     }
-    fun getAllRoutes(): LiveData<List<HistoryModel>> {
+    fun getAllHistory(): LiveData<List<HistoryModel>> {
         return dbRepository.historyList
     }
     suspend fun addNewCardNumber(cardItem: HistoryModel) = dbRepository.insert(cardItem)
